@@ -11,13 +11,12 @@ export interface Persona {
   personality: string;
 }
 
-export async function extractPersona(transcript: string, videoTitle: string): Promise<Persona> {
+export async function extractPersona(videoId: string, videoTitle: string): Promise<Persona> {
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-  const prompt = `다음은 간증 영상의 자막입니다. 아래 정보를 추출해주세요.
+  const prompt = `이 영상은 간증 영상입니다. 영상 속 자막(화면에 표시된 자막)을 읽고, 아래 정보를 추출해주세요.
 
 영상 제목: ${videoTitle}
-자막 내용: ${transcript.slice(0, 5000)}
 
 JSON 형식으로만 응답해주세요 (코드블록 없이):
 {
@@ -29,9 +28,17 @@ JSON 형식으로만 응답해주세요 (코드블록 없이):
   "personality": "간증 내용에서 유추할 수 있는 성격, 말투, 감정 특징 (2-3문장)"
 }
 
-정보가 영상에서 명확하지 않으면 자막 내용에서 최대한 유추해주세요.`;
+정보가 영상에서 명확하지 않으면 영상 내용에서 최대한 유추해주세요.`;
 
-  const result = await model.generateContent(prompt);
+  const result = await model.generateContent([
+    {
+      fileData: {
+        fileUri: `https://www.youtube.com/watch?v=${videoId}`,
+        mimeType: 'video/mp4',
+      },
+    },
+    { text: prompt },
+  ]);
   const text = result.response.text();
 
   // Parse JSON from response

@@ -115,7 +115,7 @@ export default function HomePage() {
 
           {step === 'loading' && (
             <p className="text-xs text-stone-400 animate-pulse">
-              자막을 추출하고 페르소나를 만들고 있어요...
+              영상을 분석하고 페르소나를 만들고 있어요...
             </p>
           )}
         </div>

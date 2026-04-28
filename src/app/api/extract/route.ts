@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { extractVideoId, getTranscript, getVideoTitle } from '@/lib/youtube';
+import { extractVideoId, getVideoTitle } from '@/lib/youtube';
 import { extractPersona } from '@/lib/gemini';
 
 export async function POST(request: Request) {
@@ -10,12 +10,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '유효한 YouTube URL이 아닙니다.' }, { status: 400 });
     }
 
-    const [transcript, title] = await Promise.all([
-      getTranscript(videoId),
-      getVideoTitle(videoId),
-    ]);
-
-    const persona = await extractPersona(transcript, title);
+    const title = await getVideoTitle(videoId);
+    const persona = await extractPersona(videoId, title);
 
     return NextResponse.json({
       persona,
